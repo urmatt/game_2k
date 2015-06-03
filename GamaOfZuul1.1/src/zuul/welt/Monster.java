@@ -1,5 +1,5 @@
 package zuul.welt;
 
-public class Monder {
+public class Monster {
 
 }
