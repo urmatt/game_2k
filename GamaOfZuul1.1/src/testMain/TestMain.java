@@ -1,6 +1,6 @@
 package testMain;
 
-import Enums.PanelNavigation.Directions;
+import Enums.ZuulEnums.Directions;
 import zuul.welt.Room;
 
 public class TestMain {

@@ -7,19 +7,25 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import Enums.ZuulEnums.Navigation;
+
 public class StartPanel extends JPanel{
 	
 	JButton startSpiel, ausgehen;
 	
-	Color hintergrund;
+	PanelListener listener;
 	
-	public StartPanel() {
+	Color background;
+	
+	public StartPanel(PanelListener listener) {
+		setListener(listener);
 		init();
 	}
 	
-	public StartPanel(Color hg) {
-		hintergrund = hg;
-		setBackground(hg);
+	public StartPanel(PanelListener listener ,Color bg) {
+		setListener(listener);
+		background = bg;
+		setBackground(bg);
 		init();
 	}
 	
@@ -31,16 +37,14 @@ public class StartPanel extends JPanel{
 		ausgehen = new JButton("Zum Ausgang");
 		ausgehen.setBounds(100, 250, 100, 50);
 		
-		startSpiel.addActionListener(new ActionListener() {
-			
+		startSpiel.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
+				listener.showPanel(Navigation.GAME_PANEL);
 			}
 		});
 		
-		ausgehen.addActionListener(new ActionListener() {
-			
+		ausgehen.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
@@ -48,5 +52,9 @@ public class StartPanel extends JPanel{
 		});
 		add(startSpiel);
 		add(ausgehen);
+	}
+	
+	public void setListener(PanelListener listener){
+		this.listener = listener;
 	}
 }
