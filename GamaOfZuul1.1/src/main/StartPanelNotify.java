@@ -1,8 +1,7 @@
 package main;
 
-import zuul.panels.PanelListener;
-import Enums.ZuulEnums;
 import Enums.ZuulEnums.Navigation;
+import zuul.panels.PanelListener;
 
 public interface StartPanelNotify {
 	public void setListener(PanelListener listener);

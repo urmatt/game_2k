@@ -1,51 +1,52 @@
 package zuul.welt;
 
+import Enums.ZuulEnums.Directions;
+
 import java.util.ArrayList;
 
-import Enums.ZuulEnums.Directions;
-import Enums.ZuulEnums.ThingType;
+public class Player extends Actor{
 
-public class Player {
-	String name;
-	
-	Room actualRoom;
-	
 	ArrayList<Thing> things = new ArrayList<Thing>();
 	
 	
 	public Player(String name, Room room) {
-		this.name = name;
-		actualRoom = room;
-	}
-
-
-	public String getName() {
-		return name;
-	}
-
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-
-	public Room getActualRoom() {
-		return actualRoom;
-	}
-
-
-	public void setActualRoom(Room actualRoom) {
-		this.actualRoom = actualRoom;
+		super(name, room);
 	}
 	
-	public void thakeThing(Thing th){
-		///////////////////
+	public boolean thakeThing(int index){
+        Thing th;
+        if(actualRoom.isContains(index)){
+            th = actualRoom.getMeThis(index);
+            addThing(th);
+            return true;
+        }
+            return false;
 	}
 	
 	public void addThing(Thing th){
 		things.add(th);
 	}
-	
+
+    public String useThing(int index, Actor actor){
+        String res = "";
+        if(actor.isALive) {
+            if (things.size() < index) {
+                Thing th = things.get(index);
+                res = th.useThingFor(actor);
+            } else if (things.size() == 0) {
+                res = name + " hat keine Dinge";
+            } else if (index < 0) {
+                res = "Whaele zu erst Etwas";
+            }
+        }
+
+        return res;
+    }
+
+    public Thing getThing(int index){
+        return things.get(index);
+    }
+
 	public void removeThing(Thing th){
 		this.removeThing(th);
 	}
@@ -53,7 +54,16 @@ public class Player {
 	public void useThing(Thing th){
 		th.makeUsed();
 	}
-	
+
+
+    public String[] getThingsNamesArray(){
+        String list [] = new String[things.size()];
+        for(int i = 0; i < things.size(); i++){
+            list[i] = things.get(i).getName();
+        }
+        return list;
+    }
+
 	public String moveTo(Directions direction){
 		String response = "Keine Ausgang in diesem Richtung";
 		if(getActualRoom().isOpen(direction)){

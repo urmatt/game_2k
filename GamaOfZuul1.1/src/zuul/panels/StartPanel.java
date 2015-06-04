@@ -1,13 +1,11 @@
 package zuul.panels;
 
-import java.awt.Color;
+import Enums.ZuulEnums.Navigation;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
-import Enums.ZuulEnums.Navigation;
 
 public class StartPanel extends JPanel{
 	

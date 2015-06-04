@@ -1,16 +1,38 @@
 package zuul.welt;
 
+import Enums.ZuulEnums.ActorStatus;
 import Enums.ZuulEnums.ThingType;
 
 public class Thing {
 	String name;
 	boolean isUsed = false;
-	ThingType type;
+	ThingType type = ThingType.BOMBE;
 	
 	public Thing(String name, ThingType type) {
 		setName(name);
 		setType(type);
 	}
+
+    public String useThingFor(Actor actor){
+        String res = "";
+        if(!isUsed) {
+            if (type == ThingType.MEDICATION) {
+                res = actor.setStatus(ActorStatus.NORMAL);
+            } else if (type == ThingType.DAZZLE) {
+                res = actor.setStatus(ActorStatus.DAZZLED);
+            } else if (type == ThingType.HYPNOTIC) {
+                res = actor.setStatus(ActorStatus.HYPNOTIZED);
+            } else if (type == ThingType.DISSOLVENT) {
+                res = actor.setStatus(ActorStatus.DISSOLVED);
+            } else if (type == ThingType.BOMBE) {
+                res = actor.setStatus(ActorStatus.DAD);
+            }
+            isUsed = true;
+        }else{
+            res = "Diese Dinge war schon benuzt";
+        }
+        return res;
+    }
 
 	public String getName() {
 		return name;

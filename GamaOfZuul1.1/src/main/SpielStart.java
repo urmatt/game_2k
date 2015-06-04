@@ -1,18 +1,18 @@
 package main;
 
-import java.awt.Color;
-
-import javax.swing.JFrame;
-
-import zuul.panels.GamePanel;
-import zuul.panels.PanelListener;
-import zuul.panels.StartPanel;
-import zuul.welt.Player;
-import zuul.welt.Room;
-import zuul.welt.Thing;
 import Enums.ZuulEnums.Directions;
 import Enums.ZuulEnums.Navigation;
 import Enums.ZuulEnums.ThingType;
+import zuul.panels.GamePanel;
+import zuul.panels.PanelListener;
+import zuul.panels.StartPanel;
+import zuul.welt.Monster;
+import zuul.welt.Player;
+import zuul.welt.Room;
+import zuul.welt.Thing;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class SpielStart extends JFrame implements PanelListener{
 	
@@ -20,7 +20,7 @@ public class SpielStart extends JFrame implements PanelListener{
 	GamePanel gamePanel;
 	Player player;
 	
-	Thing medication;
+	Thing medication, dazzle, dissolvent, hypnotic;
 	
 	Room startRoom, secondRoom, thridRoom, forthRoom;
 	public SpielStart() {
@@ -69,8 +69,17 @@ public class SpielStart extends JFrame implements PanelListener{
 		thridRoom.addExit(Directions.LEFT, secondRoom);//BACK CONNECTION
 		forthRoom.addExit(Directions.DOWN, thridRoom);//Back to 3-d Room
 		
-		medication = new Thing("Medication", ThingType.MEDICATION);
+		medication = new Thing("Medikament", ThingType.MEDICATION);
+        dazzle = new Thing("Blender", ThingType.DAZZLE);
+        dissolvent = new Thing("Loesungsmittel", ThingType.DISSOLVENT);
+        hypnotic = new Thing("Hypnoser", ThingType.HYPNOTIC);
+
 		secondRoom.addThing(medication);
+        thridRoom.addThing(dazzle);
+        forthRoom.addThing(dissolvent);
+        forthRoom.addThing(hypnotic);
+
+        Monster monster1 = new Monster("" ,secondRoom);
 		
 		player = new Player("Aiperi", startRoom);
 	}
