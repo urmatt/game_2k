@@ -4,8 +4,10 @@ import Enums.ZuulEnums;
 import Enums.ZuulEnums.Directions;
 import Enums.ZuulEnums.Navigation;
 import main.StartPanelNotify;
+import res.ResourseManager;
 import zuul.welt.Actor;
 import zuul.welt.Player;
+import zuul.welt.Room;
 
 import javax.swing.*;
 
@@ -17,7 +19,7 @@ import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Random;
 
-public class GamePanel extends JPanel implements StartPanelNotify, MouseListener{
+public class GamePanel extends JPanel implements StartPanelNotify{
 
     JButton left, up, right, down, use, fight, back, take;
 	JTextArea textArea;
@@ -27,22 +29,24 @@ public class GamePanel extends JPanel implements StartPanelNotify, MouseListener
 	DefaultListModel<String> thingListModel = new DefaultListModel<String>();
 	DefaultListModel<String> roomThingListModel = new DefaultListModel<String>();
 	JLabel thingsListLabel;
+    JLabel gameMap;
 	PanelListener listener;
-    JLabel roomLabelIcon;
+
     
     VisualizationPanel visualPanel;
 
-    ImageIcon hypnozer = new ImageIcon("./res/hypnoze.gif");
-    ImageIcon dath = new ImageIcon("res/dath.gif");
-    ImageIcon dazzler = new ImageIcon("res/dazzler.gif");
-    ImageIcon room1 = new ImageIcon(GamePanel.class.getResource("/res/room1.png"));
-    ImageIcon medicament = new ImageIcon("res/medicament.gif");
-    ImageIcon dissolver = new ImageIcon("res/dissolvent.gif");
+    int iconCounter = 0;
 
-    String roomIconPath[] = new String[]{"res/room1.png", "res/room2.png", "res/room3.png", "res/room4.png", "res/room5.png"};
-    String mosterImageIconPath[] = new String []{"res/monster1.gif", "res/monster2.gif", "res/monster3.gif", "res/monster4.gif", "res/monster5.gif"};
-    int coordinates[][] = new int[][]{{10, 10}, {10, 40}, {10, 60}, {40, 30}, {10, 10}};
-    HashMap<Actor, JLabel> monstersWithIcons = new HashMap<Actor, JLabel>();
+    ImageIcon hypnozer = ResourseManager.getIcon("/res/hypnoze.gif");
+    ImageIcon dath = ResourseManager.getIcon("/res/dath.gif");
+    ImageIcon dazzler = ResourseManager.getIcon("/res/dazzler.gif");
+    ImageIcon medicament = ResourseManager.getIcon("/res/medicament.gif");
+    ImageIcon dissolver = ResourseManager.getIcon("/res/dissolvent.gif");
+
+    String roomIconPath[] = new String[]{"/res/room1.png", "/res/room2.png", "/res/room3.png", "/res/room4.png", "/res/room5.png"};
+
+
+    HashMap<Room, ImageIcon> roomIcons = new HashMap<Room, ImageIcon>();
 
 	Player player;
     Actor selectedActor = null;
@@ -59,12 +63,9 @@ public class GamePanel extends JPanel implements StartPanelNotify, MouseListener
 
         GameListener gl=new GameListener();
 
-        roomLabelIcon = new JLabel("RAUM");
-        roomLabelIcon.setIcon(dazzler);
-        roomLabelIcon.setBounds(10, 10, 300, 300);
-
-        add(roomLabelIcon);
-
+        gameMap = new JLabel(ResourseManager.getIcon("/res/game_map.png"));
+        gameMap.setBounds(280, 20, 130, 130);
+        add(gameMap);
 
         //List for Player things
 		thingsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -109,6 +110,11 @@ public class GamePanel extends JPanel implements StartPanelNotify, MouseListener
         take.setActionCommand(ZuulEnums.Commands.TACKE.toString());
         take.setBounds(420, 210, 100, 30);
         take.addActionListener(gl);
+
+        back = new JButton("zueruek");
+        back.setActionCommand(ZuulEnums.Commands.BACK.toString());
+        back.setBounds(420, 10, 100, 30);
+        back.addActionListener(gl);
 		
 		add(left);
 		add(up);
@@ -117,6 +123,7 @@ public class GamePanel extends JPanel implements StartPanelNotify, MouseListener
 
         add(use);
         add(take);
+        add(back);
 		
 		textArea = new JTextArea();
 		textArea.setEditable(false);
@@ -130,42 +137,15 @@ public class GamePanel extends JPanel implements StartPanelNotify, MouseListener
 		thingsListLabel = new JLabel("Your thins");
 		thingsListLabel.setBounds(420, 251, 70, 14);
 		add(thingsListLabel);
-        updateMonstersIcons();
 	}
-
-//    private void initMonsterIconList(){
-//        for(Actor act: player.getActualRoom().getMonstersList()){
-//
-//        }
-//    }
 
 	private void visualPanelInit(){
 		visualPanel = new VisualizationPanel(Color.decode("#757575"));
 		visualPanel.setBounds(20, 20, 250, 200);
-		JLabel lab = new JLabel();
-		lab.setIcon(room1);
-		visualPanel.addImage(lab, new Rectangle(0,0,100,100));
+        visualPanel.setRoomIcon(getRoomIcon(player.getActualRoom()));
 		add(visualPanel);
 	}
-	
-    public void updateMonstersIcons(){
-        Random random = new Random();
-        for(Actor ac : player.getActualRoom().getMonstersList()){
-            int a = random.nextInt(mosterImageIconPath.length-1);
 
-            JLabel mlab = new JLabel();
-            mlab.setBounds(coordinates[a][0], coordinates[a][1], 50, 50);
-            mlab.setIcon(new ImageIcon(mosterImageIconPath[random.nextInt(mosterImageIconPath.length-1)]));
-            monstersWithIcons.put(ac, mlab);
-            add(mlab);
-        }
-    }
-
-    private void removeActor(Actor act){
-        player.getActualRoom().removeMonster(act);
-        remove(monstersWithIcons.get(act));
-        revalidate();
-    }
 
 	public void updateRoomThingList(){
         roomThingListModel.clear();
@@ -204,22 +184,47 @@ public class GamePanel extends JPanel implements StartPanelNotify, MouseListener
                     textArea.append("\nWhaele zu erst etwas.");
                 }
             }else if(cmd.equals(ZuulEnums.Commands.USE.toString())) {
-                if(player.getThing(thingsList.getSelectedIndex()).getType() == ZuulEnums.ThingType.MEDICATION){
-                    textArea.append("\nMEDIKAMENT");
+                if(thingsList.getSelectedIndex() != -1) {
+                    textArea.append("\n" + player.useThing(player.getThing(thingsList.getSelectedIndex())));
+                    updatePlayerThingsList();
+                }else{
+                    textArea.append("\nWaehle etwas ! ! !");
                 }
-                if(selectedActor != null) {
-                    player.useThing(thingsList.getSelectedIndex(), selectedActor);
-                    removeActor(selectedActor);
-                }
+//                if(player.getThing(thingsList.getSelectedIndex()).getType() == ZuulEnums.ThingType.MEDICATION){
+//                    textArea.append("\nMEDIKAMENT");
+//                }
+            }else if(cmd.equals(ZuulEnums.Commands.BACK.toString())){
+                listener.showPanel(Navigation.START_PANEL);
             }
             updateRoomThingList();
-            updateMonstersIcons();
+            visualPanel.initMonsters(player.getActualRoom().getMonstersList());
+            visualPanel.setRoomIcon(getRoomIcon(player.getActualRoom()));
         }
     }
 	
 	public void addThing(String thName){
 		thingListModel.addElement(thName);
 	}
+
+    private ImageIcon getRoomIcon(Room room){
+            if(roomIcons.containsKey(room)){
+                return roomIcons.get(room);
+            }else{
+                ImageIcon ico = ResourseManager.getIcon(roomIconPath[getNextCount()]);
+                roomIcons.put(room, ico);
+                return ico;
+            }
+    }
+
+    int getNextCount(){
+        if(iconCounter < roomIconPath.length){
+            iconCounter++;
+            return iconCounter - 1;
+        }else{
+            iconCounter=0;
+            return iconCounter;
+        }
+    }
 
 	@Override
 	public void setListener(PanelListener listener) {
@@ -234,35 +239,4 @@ public class GamePanel extends JPanel implements StartPanelNotify, MouseListener
 	public void setPlayer(Player player){
 		this.player = player;
 	}
-
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-        for(Actor sAc: monstersWithIcons.keySet()){
-            if (monstersWithIcons.get(sAc).equals(e.getComponent())){
-                selectedActor = sAc;
-            }
-        }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
 }

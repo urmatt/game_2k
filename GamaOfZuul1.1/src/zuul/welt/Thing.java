@@ -13,6 +13,11 @@ public class Thing {
 		setType(type);
 	}
 
+    /**
+     * Этот метод вызывается Player ом Например когда игрок кого то ослепляет.
+     * @param actor - для кого должна быть использована данная вешь
+     * @return текст которое должны сказать при использовании вешьи
+     */
     public String useThingFor(Actor actor){
         String res = "";
         if(!isUsed) {
@@ -27,6 +32,7 @@ public class Thing {
             } else if (type == ThingType.BOMBE) {
                 res = actor.setStatus(ActorStatus.DAD);
             }
+            actor.lafeThisRoom();
             isUsed = true;
         }else{
             res = "Diese Dinge war schon benuzt";

@@ -31,7 +31,10 @@ public class SpielStart extends JFrame implements PanelListener{
 	public static void main(String[] args) {
 		SpielStart start = new SpielStart();
 	}
-	
+
+    /**
+     * Здесь все понятно.
+      */
 	public void initGUI(){
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(50, 50, 300, 480);
@@ -45,17 +48,29 @@ public class SpielStart extends JFrame implements PanelListener{
 		setVisible(true);
 	}
 
+    /**
+     * Этот метод реализован как метод класса слушателя.
+     * Эсли из класса StartPanel нажимается кнопка spelen этот класс узнает об этом
+     *
+     * @param navigation при нажатии на кнопки Spielen и zueruek указывает какой панель нужно запускать
+     */
 	@Override
 	public void showPanel(Navigation navigation) {
 		if(navigation == Navigation.START_PANEL){
 			setContentPane(startPanel);
+            setBounds(50,50, 300, 480);
 		}else if(navigation == Navigation.GAME_PANEL){
 			setBounds(100,100, 550, 480);
+            initZuulWorld();
+            gamePanel = new GamePanel(this, player);
 			setContentPane(gamePanel);
 		}
 		revalidate();		
 	}
-	
+
+    /**
+     * определяет все за ново
+     */
 	private void initZuulWorld(){		
 		startRoom = new Room("Start Room");
 		secondRoom = new Room("secondRoom");
@@ -79,9 +94,12 @@ public class SpielStart extends JFrame implements PanelListener{
         forthRoom.addThing(dissolvent);
         forthRoom.addThing(hypnotic);
 
-        Monster monster1 = new Monster("" ,secondRoom);
-		
-		player = new Player("Aiperi", startRoom);
+        Monster monster1 = new Monster("Страшшный монстр" ,secondRoom);
+        Monster monster2 = new Monster("Очень монстр" ,secondRoom);
+
+        /*Игрока нужно именно так реализовать*/
+		player = new Player("Aiperi");
+        player.setActualRoom(startRoom);
 	}
 
 }

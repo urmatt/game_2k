@@ -16,12 +16,18 @@ public class Actor {
     public Actor(String name, Room actualRoom) {
         setName(name);
         setActualRoom(actualRoom);
-        actualRoom.addActor(this);
+        if(actualRoom != null){
+            actualRoom.addActor(this);
+        }
     }
 
     public void dad(){
         status = ZuulEnums.ActorStatus.DAD;
         isALive =false;
+    }
+
+    public void lafeThisRoom(){
+        actualRoom.removeActor(this);
     }
 
     public void setName(String name){
@@ -40,6 +46,10 @@ public class Actor {
         this.actualRoom = actualRoom;
     }
 
+    /**
+     * @param status добавляется обычно после применения оружия или еше чего то.
+     * @return То что произошло после добавления статуса
+     */
     public String setStatus(ActorStatus status){
         String response = "";
         if(status == ActorStatus.DAD){
